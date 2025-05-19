@@ -1,0 +1,16 @@
+.authLayout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #1e1e1e;
+}
+
+.content {
+  padding: 2rem;
+  background-color: #2f2f2f;
+  border-radius: 8px;
+  color: white;
+  min-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
