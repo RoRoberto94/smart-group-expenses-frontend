@@ -1,0 +1,45 @@
+.authContainer {
+  width: 100%;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.2rem;
+  color: #e0e0e0;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.errorMessage {
+  color: #ff7875;
+  background-color: rgba(255, 77, 79, 0.1);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.redirectLink {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+}
+
+.redirectLink a {
+  color: #646cff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.redirectLink a:hover {
+  text-decoration: underline;
+}

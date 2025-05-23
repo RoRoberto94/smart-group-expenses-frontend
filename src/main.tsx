@@ -3,9 +3,13 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
+import AppInitializer from './components/AppInitializer/AppInitializer';
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <AppInitializer>
+      <RouterProvider router={router} />
+    </AppInitializer>
   </StrictMode>,
 )
