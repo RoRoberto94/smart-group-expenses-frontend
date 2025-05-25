@@ -5,13 +5,6 @@
     background-color: #2f2f2f;
 }
 
-.header {
-  background-color: #1a1a1a;
-  padding: 1rem;
-  color: white;
-  text-align: center;
-}
-
 .content {
   flex-grow: 1;
   padding: 1rem;
