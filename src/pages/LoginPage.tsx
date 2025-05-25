@@ -4,6 +4,7 @@ import Input from '../components/Input/Input';
 import Button from '../components/Button/Button';
 import { useAuthStore } from '../store/authStore';
 import styles from './AuthPages.module.css';
+import { useLocation } from 'react-router-dom';
 
 
 const LoginPage: React.FC = () => {
@@ -17,7 +18,9 @@ const LoginPage: React.FC = () => {
     const clearError = useAuthStore((state) => state.clearError);
 
     const navigate = useNavigate();
+    const location = useLocation();
 
+    const from = location.state?.from?.pathname || '/dashboard';
 
     useEffect(() => {
         clearError();
@@ -28,9 +31,9 @@ const LoginPage: React.FC = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            navigate('/dashboard');
+            navigate(from, { replace: true });
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate, from]);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();

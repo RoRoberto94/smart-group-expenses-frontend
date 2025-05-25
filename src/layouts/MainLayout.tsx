@@ -1,17 +1,17 @@
 import { Outlet } from 'react-router-dom';
 import styles from './MainLayout.module.css';
+import Navbar from '../components/Navbar/Navbar';
+
 
 const MainLayout = () => {
     return (
         <div className={styles.mainLayout}>
-            <header className={styles.header}>
-                Navbar Placeholder (Main Layout)
-            </header>
+            <Navbar />
             <main className={styles.content}>
                 <Outlet />
             </main>
             <footer className={styles.footer}>
-                Footer Placeholder (Main Layout)
+                © {new Date().getFullYear()} SmartGroupExpenses
             </footer>
         </div>
     );

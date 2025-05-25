@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import AuthLayout from '../layouts/AuthLayout';
 import LoginPage from '../pages/LoginPage';
@@ -6,6 +6,7 @@ import RegisterPage from '../pages/RegisterPage';
 import DashboardPage from '../pages/DashboardPage';
 import GroupDetailPage from '../pages/GroupDetailPage';
 import NotFoundPage from '../pages/NotFoundPage';
+import ProtectedRoute from './ProtectedRoute';
 
 
 export const router = createBrowserRouter([
@@ -23,19 +24,25 @@ export const router = createBrowserRouter([
         ],
     },
     {
+        path: '/',
         element: <MainLayout />,
         children: [
             {
-                path: '/',
-                element: <DashboardPage />,
-            },
-            {
-                path: '/dashboard',
-                element: <DashboardPage />,
-            },
-            {
-                path: '/groups/:groupId',
-                element: <GroupDetailPage />,
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        index: true,
+                        element: <DashboardPage />,
+                    },
+                    {
+                        path: 'dashboard',
+                        element: <DashboardPage />,
+                    },
+                    {
+                        path: 'groups/:groupId',
+                        element: <GroupDetailPage />,
+                    },
+                ],
             },
         ],
     },
