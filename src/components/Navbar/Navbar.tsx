@@ -18,15 +18,25 @@ const Navbar: React.FC = () => {
 
     return (
         <nav className={styles.navbar}>
-            <div className={styles.navBrand}>
-                <Link to={isAuthenticated ? "/dashboard" : "/login"}>SmartGroupExpenses</Link>
+            <div className={styles.leftNavItems}>
+                <div className={styles.navBrand}>
+                    <Link to={isAuthenticated ? "/dashboard" : "/login"}>SmartGroupExpenses</Link>
+                </div>
+                {isAuthenticated && (
+                    <>
+                        <span className={styles.separator}></span>
+                        <div className={styles.pageTitle}>
+                            <Link to="/dashboard">Dashboard</Link>
+                        </div>
+                    </>
+                )}
             </div>
+
+            <div className={styles.navSpacer}></div>
+
             <ul className={styles.navLinks}>
                 {isAuthenticated ? (
                     <>
-                        <li>
-                            <Link to="/dashboard">Dashboard</Link>
-                        </li>
                         {user && <li className={styles.userInfo}>Hi, {user.username}!</li>}
                         <li>
                             <Button onClick={handleLogout} variant="secondary" className={styles.logoutButton}>
@@ -46,7 +56,7 @@ const Navbar: React.FC = () => {
                 )}
             </ul>
         </nav>
-    )
+    );
 }
 
 export default Navbar;

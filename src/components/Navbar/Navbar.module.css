@@ -2,17 +2,24 @@
     background-color: #1a1a1a;
     padding: 0.75rem 2rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
 }
 
-.navBrand a {
-    color: white;
-    text-decoration: none;
-    font-size: 1.5rem;
-    font-weight: bold;
+.navSpacer {
+    flex-grow: 1;
+    min-width: 20px;
+}
+
+.leftNavItems {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
 }
 
 .navLinks {
@@ -22,17 +29,43 @@
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    flex-shrink: 0;
 }
 
-.navLinks a {
+.navBrand a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.separator {
+    height: 35px;
+    width: 1px;
+    background-color: #555;
+}
+
+.pageTitle a {
+    color: #e0e0e0;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+
+.pageTitle a:hover {
+    color: #646cff;
+}
+
+.navLinks li a {
     color: #e0e0e0;
     text-decoration: none;
     font-size: 1rem;
     transition: color 0.2s ease-in-out;
 }
 
-.navLinks a:hover,
-.navLinks a.active {
+.navLinks li a:hover,
+.navLinks li a.active {
     color: #646cff;
 }
 
