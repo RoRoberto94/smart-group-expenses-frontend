@@ -1,0 +1,36 @@
+.dashboardContainer {
+    padding: 1rem;
+}
+
+.title {
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.actionsContainer {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.groupList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.loadingMessage,
+.errorMessage,
+.noGroupsMessage {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #c0c0c0;
+    padding: 2rem;
+}
+
+.errorMessage {
+    color: #ff7875;
+    background-color: rgba(255, 77, 79, 0.1);
+    border: 1px solid rgba(255, 77, 79, 0.2);
+    border-radius: 4px;
+}

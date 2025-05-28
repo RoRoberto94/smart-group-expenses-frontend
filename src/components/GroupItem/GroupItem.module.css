@@ -1,0 +1,37 @@
+.groupItemLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.groupItem {
+    background-color: #3a3a3a;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #4f4f4f;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.groupItem:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.groupName {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    color: #e0e0e0;
+}
+
+.groupMeta,
+.groupDate {
+    font-size: 0.875rem;
+    color: #b0b0b0;
+    margin-bottom: 0.25rem;
+}
+
+.groupDate {
+    margin-bottom: 0;
+}
