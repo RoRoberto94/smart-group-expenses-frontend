@@ -7,3 +7,11 @@ export const fetchUserGroups = async (): Promise<Group[]> => {
     return data;
 };
 
+export interface CreateGroupPayload {
+    name: string;
+}
+
+export const createNewGroup = async (payload: CreateGroupPayload): Promise<Group> => {
+    const { data } = await apiClient.post<Group>('/groups/', payload);
+    return data;
+}

@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { useGroupStore } from '../store/groupStore';
 import GroupItem from '../components/GroupItem/GroupItem';
 import styles from './DashboardPage.module.css';
+import Button from '../components/Button/Button';
+import { Link } from 'react-router-dom';
 
 
 const DashboardPage: React.FC = () => {
@@ -25,8 +27,14 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div className={styles.dashboardContainer}>
-            <h1 className={styles.title}>Your Groups</h1>
-
+            <div className={styles.headerActions}>
+                <h1 className={styles.title}>Your Groups</h1>
+                <Link to="/groups/create" className={styles.createGroupLink}>
+                    <Button variant="primary" className={styles.createGroupButton}>
+                        + Create New Group
+                    </Button>
+                </Link>
+            </div>
             {groups.length === 0 ? (
                 <p className={styles.noGroupsMessage}>
                     You are not part of any groups yet. Why not create one?

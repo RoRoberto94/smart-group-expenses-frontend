@@ -7,6 +7,7 @@ import DashboardPage from '../pages/DashboardPage';
 import GroupDetailPage from '../pages/GroupDetailPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProtectedRoute from './ProtectedRoute';
+import CreateGroupPage from '../pages/CreateGroupPage';
 
 
 export const router = createBrowserRouter([
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
                     {
                         path: 'dashboard',
                         element: <DashboardPage />,
+                    },
+                    {
+                        path: 'groups/create',
+                        element: <CreateGroupPage />,
                     },
                     {
                         path: 'groups/:groupId',
