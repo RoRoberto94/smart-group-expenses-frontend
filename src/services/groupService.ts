@@ -1,5 +1,6 @@
 import apiClient from './apiClient';
 import type { Group } from '../types/Group';
+import type { Expense } from '../types/Expense';
 
 
 export const fetchUserGroups = async (): Promise<Group[]> => {
@@ -15,3 +16,14 @@ export const createNewGroup = async (payload: CreateGroupPayload): Promise<Group
     const { data } = await apiClient.post<Group>('/groups/', payload);
     return data;
 }
+
+export const fetchGroupDetails = async (groupId: string | number): Promise<Group> => {
+    const { data } = await apiClient.get<Group>(`/groups/${groupId}/`);
+    return data;
+};
+
+export const fetchGroupExpenses = async (groupId: string | number): Promise<Expense[]> => {
+    const { data } = await apiClient.get<Expense[]>(`/groups/${groupId}/expenses/`);
+    return data;
+};
+

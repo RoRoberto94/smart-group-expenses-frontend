@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Group } from '../types/Group';
-import { fetchUserGroups, createNewGroup } from '../services/groupService';
+import type { Expense } from '../types/Expense';
+import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses } from '../services/groupService';
 import type { CreateGroupPayload } from '../services/groupService';
 import { AxiosError } from 'axios';
 
@@ -19,6 +20,14 @@ interface GroupState {
     isCreating: boolean;
     createError: string | null;
     createGroup: (payload: CreateGroupPayload) => Promise<Group | null>;
+
+    selectedGroup: Group | null;
+    selectedGroupExpenses: Expense[];
+    isLoadingSelectedGroup: boolean;
+    selectedGroupError: string | null;
+
+    fetchSelectedGroupData: (groupId: string | number) => Promise<void>;
+    clearSelectedGroupData: () => void;
 }
 
 export const useGroupStore = create<GroupState>()((set, _get) => ({
@@ -27,6 +36,11 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
     error: null,
     isCreating: false,
     createError: null,
+
+    selectedGroup: null,
+    selectedGroupExpenses: [],
+    isLoadingSelectedGroup: false,
+    selectedGroupError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -85,5 +99,43 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
             set({ createError: errorMessage, isCreating: false });
             return null;
         }
+    },
+
+    fetchSelectedGroupData: async (groupId) => {
+        set({
+            isLoadingSelectedGroup: true,
+            selectedGroupError: null,
+            selectedGroup: null,
+            selectedGroupExpenses: []
+        });
+        try {
+            const [groupDetails, groupExpenses] = await Promise.all([
+                fetchGroupDetails(groupId),
+                fetchGroupExpenses(groupId),
+            ]);
+            set({
+                selectedGroup: groupDetails,
+                selectedGroupExpenses: groupExpenses,
+                isLoadingSelectedGroup: false,
+            });
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to fetch group data';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ selectedGroupError: errorMessage, isLoadingSelectedGroup: false });
+        }
+    },
+
+    clearSelectedGroupData: () => {
+        set({
+            selectedGroup: null,
+            selectedGroupExpenses: [],
+            isLoadingSelectedGroup: false,
+            selectedGroupError: null,
+        });
     },
 }));

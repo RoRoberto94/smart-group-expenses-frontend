@@ -1,0 +1,91 @@
+.pageContainer {
+    padding: 1.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.backLink {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: #646cff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+.groupHeader {
+    background-color: #3a3a3a;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid #4f4f4f;
+}
+
+.groupName {
+    color: #e0e0e0;
+    font-size: 2rem;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+.groupMeta p {
+    color: #b0b0b0;
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+}
+
+.groupMeta strong {
+    font-weight: 600;
+    color: #c7c7c7;
+}
+
+.groupActions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.groupActions button {
+    width: auto;
+    padding: 0.6rem 1.2rem;
+}
+
+
+.expensesSection {
+    margin-top: 2rem;
+}
+
+.sectionTitle {
+    color: #d0d0d0;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #4f4f4f;
+}
+
+.expensesList {
+    margin-top: 1rem;
+}
+
+.loadingMessage,
+.errorMessage,
+.notFoundMessage,
+.noExpensesMessage {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #c0c0c0;
+    padding: 2rem;
+    background-color: #3a3a3a;
+    border-radius: 6px;
+    border: 1px solid #4f4f4f;
+}
+
+.errorMessage {
+    color: #ff7875;
+    background-color: rgba(255, 100, 100, 0.08);
+    border: 1px solid rgba(255, 100, 100, 0.2);
+}
