@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
-import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses } from '../services/groupService';
-import type { CreateGroupPayload } from '../services/groupService';
+import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, type CreateGroupPayload } from '../services/groupService';
+import { createExpenseInGroup } from '../services/expenseService';
+import type { CreateExpensePayload } from '../services/expenseService';
 import { AxiosError } from 'axios';
 
 
@@ -28,6 +29,10 @@ interface GroupState {
 
     fetchSelectedGroupData: (groupId: string | number) => Promise<void>;
     clearSelectedGroupData: () => void;
+
+    isCreatingExpense: boolean;
+    createExpenseError: string | null;
+    addExpenseToGroup: (groupId: string | number, payload: CreateExpensePayload) => Promise<Expense | null>;
 }
 
 export const useGroupStore = create<GroupState>()((set, _get) => ({
@@ -41,6 +46,9 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
     selectedGroupExpenses: [],
     isLoadingSelectedGroup: false,
     selectedGroupError: null,
+
+    isCreatingExpense: false,
+    createExpenseError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -137,5 +145,33 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
             isLoadingSelectedGroup: false,
             selectedGroupError: null,
         });
+    },
+
+    addExpenseToGroup: async (groupId, payload) => {
+        set({ isCreatingExpense: true, createExpenseError: null });
+        try {
+            const newExpense = await createExpenseInGroup(groupId, payload);
+            set((state) => ({
+                selectedGroupExpenses: [newExpense, ...state.selectedGroupExpenses],
+                isCreatingExpense: false,
+            }));
+            return newExpense;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to add expense';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData) {
+                    if (errorData.description && Array.isArray(errorData.description)) {
+                        errorMessage = `Description: ${errorData.description.join(', ')}`;
+                    } else if (errorData.amount && Array.isArray(errorData.amount)) {
+                        errorMessage = `Amount: ${errorData.amount.join(', ')}`;
+                    } else if (errorData.detail) { errorMessage = errorData.detail; }
+                    else if (e.message) { errorMessage = e.message; }
+                } else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ createExpenseError: errorMessage, isCreatingExpense: false });
+            return null;
+        }
     },
 }));

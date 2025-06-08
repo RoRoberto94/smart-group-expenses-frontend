@@ -1,17 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGroupStore } from '../store/groupStore';
 import ExpenseItem from '../components/ExpenseItem/ExpenseItem';
 import Button from '../components/Button/Button';
 import styles from './GroupDetailPage.module.css';
+import AddExpenseForm from '../components/AddExpenseForm/AddExpenseForm';
+
 
 const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();
 
+    const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
+
     const selectedGroup = useGroupStore((state) => state.selectedGroup);
     const selectedGroupExpenses = useGroupStore((state) => state.selectedGroupExpenses);
     const isLoadingSelectedGroup = useGroupStore((state) => state.isLoadingSelectedGroup);
-    const selectedGroupErrorFromStore = useGroupStore((state) => state.selectedGroupError);
+    const selectedGroupError = useGroupStore((state) => state.selectedGroupError);
 
     useEffect(() => {
         const storeActions = useGroupStore.getState();
@@ -30,22 +34,26 @@ const GroupDetailPage: React.FC = () => {
         return () => {
             storeActions.clearSelectedGroupData();
         };
-    }, [groupId, selectedGroupErrorFromStore]);
+    }, [groupId, selectedGroupError]);
+
+    const handleExpenseAdded = () => {
+        setShowAddExpenseForm(false);
+    };
 
     if (isLoadingSelectedGroup && !selectedGroup) {
         return <div className={styles.loadingMessage}>Loading group details...</div>;
     }
 
-    if (selectedGroupErrorFromStore && !selectedGroup) {
-        return <div className={styles.errorMessage}>Error: {selectedGroupErrorFromStore}</div>;
+    if (selectedGroupError && !selectedGroup) {
+        return <div className={styles.errorMessage}>Error: {selectedGroupError}</div>;
     }
 
     if (!selectedGroup && !isLoadingSelectedGroup) {
-        return <div className={styles.noFoundMessage}>Group not found or data is unavailable.</div>;
+        return <div className={styles.notFoundMessage}>Group not found or data is unavailable.</div>;
     }
 
     if (!selectedGroup) {
-        return <div className={styles.noFoundMessage}>Group data is missing.</div>;
+        return <div className={styles.notFoundMessage}>Group data is missing or an unknown error occurred.</div>;
     }
 
     return (
@@ -65,10 +73,16 @@ const GroupDetailPage: React.FC = () => {
                     </p>
                 </div>
                 <div className={styles.groupActions}>
-                    <Button>Add Expense</Button>
+                    <Button onClick={() => setShowAddExpenseForm(!showAddExpenseForm)}>
+                        {showAddExpenseForm ? 'Cancel Adding Expense' : '+ Add Expense'}
+                    </Button>
                     <Button variant="secondary">Settle Up</Button>
                 </div>
             </header>
+
+            {showAddExpenseForm && groupId && (<section className={styles.addExpenseSection}>
+                <AddExpenseForm groupId={groupId} onExpenseAdded={handleExpenseAdded} />
+            </section>)}
 
             <section className={styles.expensesSection}>
                 <h2 className={styles.sectionTitle}>Expenses</h2>
