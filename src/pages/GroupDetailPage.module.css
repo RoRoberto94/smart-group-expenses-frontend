@@ -54,6 +54,10 @@
     padding: 0.6rem 1.2rem;
 }
 
+.addExpenseSection {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
 
 .expensesSection {
     margin-top: 2rem;
