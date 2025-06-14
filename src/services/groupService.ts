@@ -1,6 +1,7 @@
 import apiClient from './apiClient';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
+import type { SettlementTransaction } from '../types/Settlement';
 
 
 export const fetchUserGroups = async (): Promise<Group[]> => {
@@ -26,4 +27,10 @@ export const fetchGroupExpenses = async (groupId: string | number): Promise<Expe
     const { data } = await apiClient.get<Expense[]>(`/groups/${groupId}/expenses/`);
     return data;
 };
+
+export const fetchSettlementPlan = async (groupId: string | number): Promise<SettlementTransaction[]> => {
+    const { data } = await apiClient.get<SettlementTransaction[]>(`/groups/${groupId}/settle/`);
+    return data;
+};
+
 

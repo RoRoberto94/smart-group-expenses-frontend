@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
-import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, type CreateGroupPayload } from '../services/groupService';
+import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, type CreateGroupPayload } from '../services/groupService';
 import { createExpenseInGroup } from '../services/expenseService';
 import type { CreateExpensePayload } from '../services/expenseService';
 import { AxiosError } from 'axios';
+import type { SettlementTransaction } from '../types/Settlement';
 
 
 interface ApiErrorData {
@@ -33,6 +34,12 @@ interface GroupState {
     isCreatingExpense: boolean;
     createExpenseError: string | null;
     addExpenseToGroup: (groupId: string | number, payload: CreateExpensePayload) => Promise<Expense | null>;
+
+    settlementPlan: SettlementTransaction[];
+    isLoadingSettlement: boolean;
+    settlementError: string | null;
+    getSettlementPlan: (groupId: string | number) => Promise<void>;
+    clearSettlementPlan: () => void;
 }
 
 export const useGroupStore = create<GroupState>()((set, _get) => ({
@@ -49,6 +56,10 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
 
     isCreatingExpense: false,
     createExpenseError: null,
+
+    settlementPlan: [],
+    isLoadingSettlement: false,
+    settlementError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -144,6 +155,10 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
             selectedGroupExpenses: [],
             isLoadingSelectedGroup: false,
             selectedGroupError: null,
+
+            settlementPlan: [],
+            isLoadingSettlement: false,
+            settlementError: null,
         });
     },
 
@@ -173,5 +188,26 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
             set({ createExpenseError: errorMessage, isCreatingExpense: false });
             return null;
         }
+    },
+
+    getSettlementPlan: async (groupId) => {
+        set({ isLoadingSettlement: true, settlementError: null, settlementPlan: [] });
+        try {
+            const plan = await fetchSettlementPlan(groupId);
+            set({ settlementPlan: plan, isLoadingSettlement: false });
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to fetch settlement plan';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ settlementError: errorMessage, isLoadingSettlement: false });
+        }
+    },
+
+    clearSettlementPlan: () => {
+        set({ settlementPlan: [], isLoadingSettlement: false, settlementError: null });
     },
 }));

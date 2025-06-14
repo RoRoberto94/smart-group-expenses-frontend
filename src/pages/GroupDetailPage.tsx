@@ -5,50 +5,71 @@ import ExpenseItem from '../components/ExpenseItem/ExpenseItem';
 import Button from '../components/Button/Button';
 import styles from './GroupDetailPage.module.css';
 import AddExpenseForm from '../components/AddExpenseForm/AddExpenseForm';
+import SettlementTransactionItem from '../components/SettlementTransactionItem/SettlementTransactionItem';
 
 
 const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();
 
     const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
+    const [showSettlement, setShowSettlement] = useState(false);
 
     const selectedGroup = useGroupStore((state) => state.selectedGroup);
     const selectedGroupExpenses = useGroupStore((state) => state.selectedGroupExpenses);
     const isLoadingSelectedGroup = useGroupStore((state) => state.isLoadingSelectedGroup);
     const selectedGroupError = useGroupStore((state) => state.selectedGroupError);
+    const fetchSelectedGroupData = useGroupStore((state) => state.fetchSelectedGroupData);
+    const clearSelectedGroupData = useGroupStore((state) => state.clearSelectedGroupData);
+
+    const settlementPlan = useGroupStore((state) => state.settlementPlan);
+    const isLoadingSettlement = useGroupStore((state) => state.isLoadingSettlement);
+    const settlementError = useGroupStore((state) => state.settlementError);
+    const getSettlementPlan = useGroupStore((state) => state.getSettlementPlan);
+    const clearSettlementPlan = useGroupStore((state) => state.clearSettlementPlan);
+
 
     useEffect(() => {
-        const storeActions = useGroupStore.getState();
-
         if (groupId) {
-            if (
-                !storeActions.isLoadingSelectedGroup &&
-                (storeActions.selectedGroup?.id !== Number(groupId) ||
-                    !storeActions.selectedGroup ||
-                    storeActions.selectedGroupError)
-            ) {
-                storeActions.fetchSelectedGroupData(groupId);
+            if ((!selectedGroup || selectedGroup.id !== Number(groupId)) && !isLoadingSelectedGroup) {
+                fetchSelectedGroupData(groupId);
             }
         }
+    }, [groupId, fetchSelectedGroupData, selectedGroup, isLoadingSelectedGroup]);
 
+    useEffect(() => {
         return () => {
-            storeActions.clearSelectedGroupData();
-        };
-    }, [groupId, selectedGroupError]);
+            clearSelectedGroupData();
+        }
+    }, [clearSelectedGroupData]);
 
     const handleExpenseAdded = () => {
         setShowAddExpenseForm(false);
+
+        clearSettlementPlan();
+        setShowSettlement(false);
     };
 
-    if (isLoadingSelectedGroup && !selectedGroup) {
+    const handleSettleUpClick = () => {
+        if (groupId) {
+            if (showSettlement) {
+                clearSettlementPlan();
+                setShowSettlement(false);
+            } else {
+                getSettlementPlan(groupId);
+                setShowSettlement(true);
+            }
+        }
+    };
+
+    if (isLoadingSelectedGroup && !selectedGroup && !selectedGroupError) {
         return <div className={styles.loadingMessage}>Loading group details...</div>;
     }
 
-    if (selectedGroupError && !selectedGroup) {
+    if (selectedGroupError && !isLoadingSelectedGroup && !selectedGroup) {
         return <div className={styles.errorMessage}>Error: {selectedGroupError}</div>;
     }
 
-    if (!selectedGroup && !isLoadingSelectedGroup) {
+    if (!selectedGroup && !isLoadingSelectedGroup && !selectedGroupError) {
         return <div className={styles.notFoundMessage}>Group not found or data is unavailable.</div>;
     }
 
@@ -76,13 +97,40 @@ const GroupDetailPage: React.FC = () => {
                     <Button onClick={() => setShowAddExpenseForm(!showAddExpenseForm)}>
                         {showAddExpenseForm ? 'Cancel Adding Expense' : '+ Add Expense'}
                     </Button>
-                    <Button variant="secondary">Settle Up</Button>
+                    <Button
+                        variant="secondary"
+                        onClick={handleSettleUpClick}
+                        isLoading={isLoadingSettlement}
+                        disabled={isLoadingSettlement}
+                    >
+                        {showSettlement ? 'Hide Settlement' : 'Settle Up'}
+                    </Button>
                 </div>
             </header>
 
             {showAddExpenseForm && groupId && (<section className={styles.addExpenseSection}>
                 <AddExpenseForm groupId={groupId} onExpenseAdded={handleExpenseAdded} />
             </section>)}
+
+            {showSettlement && (
+                <section className={styles.settlementSection}>
+                    <h2 className={styles.sectionTitle}>Settlement Plan</h2>
+                    {isLoadingSettlement && <p className={styles.loadingMessage}>Calculating settlement...</p>}
+                    {settlementError && <p className={styles.errorMessage}>Error: {settlementError}</p>}
+                    {!isLoadingSettlement && !settlementError && settlementPlan.length === 0 && (
+                        <p className={styles.noTransactionsMessage}>All debts are settled, or no transactions to settle!</p>
+                    )}
+                    {!isLoadingSettlement && !settlementError && settlementPlan.length > 0 && (
+                        <ul className={styles.settlementList}>
+                            {settlementPlan.map((transaction, index) => (
+                                <SettlementTransactionItem
+                                    key={`${transaction.from_user_username}-${transaction.to_user_username}-${transaction.amount}-${index}`}
+                                    transaction={transaction} />
+                            ))}
+                        </ul>
+                    )}
+                </section>
+            )}
 
             <section className={styles.expensesSection}>
                 <h2 className={styles.sectionTitle}>Expenses</h2>
