@@ -114,3 +114,8 @@
     font-style: italic;
     color: #a0a0a0;
 }
+
+.editExpenseSection {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}

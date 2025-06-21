@@ -1,13 +1,20 @@
 import React from 'react';
 import type { Expense } from '../../types/Expense';
 import styles from './ExpenseItem.module.css';
-
+import Button from '../Button/Button';
+import { useAuthStore } from '../../store/authStore';
 
 interface ExpenseItemProps {
     expense: Expense;
+    onEdit: (expense: Expense) => void;
+    onDelete: (expenseId: number) => void;
 }
 
-const ExpenseItem: React.FC<ExpenseItemProps> = ({ expense }) => {
+const ExpenseItem: React.FC<ExpenseItemProps> = ({ expense, onEdit, onDelete }) => {
+
+    const currentUser = useAuthStore((state) => state.user);
+    const canModify = currentUser?.id === expense.paid_by.id;
+
     return (
         <div className={styles.expenseItem}>
             <div className={styles.header}>
@@ -26,6 +33,25 @@ const ExpenseItem: React.FC<ExpenseItemProps> = ({ expense }) => {
                 </ul>
             </div>
             <p className={styles.date}>Added: {new Date(expense.created_at).toLocaleString()}</p>
+
+            {canModify && (
+                <div className={styles.actions}>
+                    <Button
+                        onClick={() => onEdit(expense)}
+                        variant="secondary"
+                        className={styles.actionButton}
+                    >
+                        Edit
+                    </Button>
+                    <Button
+                        onClick={() => onDelete(expense.id)}
+                        variant="secondary"
+                        className={`${styles.actionButton} ${styles.deleteButton}`}
+                    >
+                        Delete
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };

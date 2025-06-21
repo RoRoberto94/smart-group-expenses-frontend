@@ -57,3 +57,27 @@
 .splitDetail {
     margin-bottom: 0.25rem;
 }
+
+.actions {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed #5f5f5f;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.actionButton {
+    padding: 0.3rem 0.7rem !important;
+    font-size: 0.8rem !important;
+    width: auto !important;
+}
+
+.deleteButton {
+    background-color: #753636 !important;
+    border-color: #8f4c4c !important;
+}
+
+.deleteButton:hover:not(:disabled) {
+    background-color: #8f4040 !important;
+}

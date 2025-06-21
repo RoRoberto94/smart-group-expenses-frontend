@@ -6,6 +6,8 @@ import Button from '../components/Button/Button';
 import styles from './GroupDetailPage.module.css';
 import AddExpenseForm from '../components/AddExpenseForm/AddExpenseForm';
 import SettlementTransactionItem from '../components/SettlementTransactionItem/SettlementTransactionItem';
+import EditExpenseForm from '../components/EditExpenseForm/EditExpenseForm';
+import type { Expense } from '../types/Expense';
 
 
 const GroupDetailPage: React.FC = () => {
@@ -13,6 +15,8 @@ const GroupDetailPage: React.FC = () => {
 
     const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
     const [showSettlement, setShowSettlement] = useState(false);
+    const [showEditExpenseForm, setShowEditExpenseForm] = useState(false);
+    const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
 
     const selectedGroup = useGroupStore((state) => state.selectedGroup);
     const selectedGroupExpenses = useGroupStore((state) => state.selectedGroupExpenses);
@@ -27,6 +31,8 @@ const GroupDetailPage: React.FC = () => {
     const getSettlementPlan = useGroupStore((state) => state.getSettlementPlan);
     const clearSettlementPlan = useGroupStore((state) => state.clearSettlementPlan);
 
+    const removeExpenseFromGroup = useGroupStore((state) => state.removeExpenseFromGroup);
+    const deleteExpenseError = useGroupStore((state) => state.deleteExpenseError);
 
     useEffect(() => {
         if (groupId) {
@@ -59,6 +65,39 @@ const GroupDetailPage: React.FC = () => {
                 setShowSettlement(true);
             }
         }
+    };
+
+    const handleEditExpenseClick = (expense: Expense) => {
+        setExpenseToEdit(expense);
+        setShowEditExpenseForm(true);
+        setShowAddExpenseForm(false);
+        setShowSettlement(false);
+        useGroupStore.getState().clearSettlementPlan();
+    };
+
+    const handleDeleteExpenseClick = async (expenseId: number) => {
+        if (window.confirm('Are you sure you want to delete this expense? This action cannot be undone.')) {
+            if (groupId) {
+                const success = await removeExpenseFromGroup(groupId, expenseId);
+                if (success) {
+                    setShowSettlement(false);
+                } else {
+                    const errorMsg = useGroupStore.getState().deleteExpenseError;
+                    alert(`Failed to delete expense: ${errorMsg || 'Unknown error'}`);
+                }
+            }
+        }
+    };
+
+    const handleExpenseUpdated = () => {
+        setShowEditExpenseForm(false);
+        setExpenseToEdit(null);
+        setShowSettlement(false);
+    };
+
+    const handleCancelEdit = () => {
+        setShowEditExpenseForm(false);
+        setExpenseToEdit(null);
     };
 
     if (isLoadingSelectedGroup && !selectedGroup && !selectedGroupError) {
@@ -94,7 +133,13 @@ const GroupDetailPage: React.FC = () => {
                     </p>
                 </div>
                 <div className={styles.groupActions}>
-                    <Button onClick={() => setShowAddExpenseForm(!showAddExpenseForm)}>
+                    <Button onClick={() => {
+                        setShowAddExpenseForm(!showAddExpenseForm);
+                        setShowEditExpenseForm(false);
+                        setExpenseToEdit(null);
+                        setShowSettlement(false);
+                        useGroupStore.getState().clearSettlementPlan();
+                    }}>
                         {showAddExpenseForm ? 'Cancel Adding Expense' : '+ Add Expense'}
                     </Button>
                     <Button
@@ -108,11 +153,22 @@ const GroupDetailPage: React.FC = () => {
                 </div>
             </header>
 
-            {showAddExpenseForm && groupId && (<section className={styles.addExpenseSection}>
+            {showAddExpenseForm && groupId && !showEditExpenseForm && (<section className={styles.addExpenseSection}>
                 <AddExpenseForm groupId={groupId} onExpenseAdded={handleExpenseAdded} />
             </section>)}
 
-            {showSettlement && (
+            {showEditExpenseForm && expenseToEdit && groupId && (
+                <section className={styles.editExpenseSection}>
+                    <EditExpenseForm
+                        groupId={groupId}
+                        expenseToEdit={expenseToEdit}
+                        onExpenseUpdated={handleExpenseUpdated}
+                        onCancel={handleCancelEdit}
+                    />
+                </section>
+            )}
+
+            {showSettlement && !showAddExpenseForm && !showEditExpenseForm && (
                 <section className={styles.settlementSection}>
                     <h2 className={styles.sectionTitle}>Settlement Plan</h2>
                     {isLoadingSettlement && <p className={styles.loadingMessage}>Calculating settlement...</p>}
@@ -134,6 +190,7 @@ const GroupDetailPage: React.FC = () => {
 
             <section className={styles.expensesSection}>
                 <h2 className={styles.sectionTitle}>Expenses</h2>
+                {deleteExpenseError && <p className={styles.errorMessage}> Delete error: {deleteExpenseError}</p>}
                 {selectedGroupExpenses.length === 0 ? (
                     <p className={styles.noExpensesMessage}>
                         No expenses recorded in this group yet.
@@ -141,7 +198,12 @@ const GroupDetailPage: React.FC = () => {
                 ) : (
                     <div className={styles.expensesList}>
                         {selectedGroupExpenses.map((expense) => (
-                            <ExpenseItem key={expense.id} expense={expense} />
+                            <ExpenseItem
+                                key={expense.id}
+                                expense={expense}
+                                onEdit={handleEditExpenseClick}
+                                onDelete={handleDeleteExpenseClick}
+                            />
                         ))}
                     </div>
                 )}

@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
 import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, type CreateGroupPayload } from '../services/groupService';
-import { createExpenseInGroup } from '../services/expenseService';
-import type { CreateExpensePayload } from '../services/expenseService';
+import { createExpenseInGroup, updateExpense, deleteExpense } from '../services/expenseService';
+import type { CreateExpensePayload, UpdateExpensePayload } from '../services/expenseService';
 import { AxiosError } from 'axios';
 import type { SettlementTransaction } from '../types/Settlement';
 
@@ -40,9 +40,24 @@ interface GroupState {
     settlementError: string | null;
     getSettlementPlan: (groupId: string | number) => Promise<void>;
     clearSettlementPlan: () => void;
+
+    isUpdatingExpense: boolean;
+    updateExpenseError: string | null;
+    isDeletingExpense: boolean;
+    deleteExpenseError: string | null;
+
+    editExpenseInGroup: (
+        groupId: string | number,
+        expenseId: string | number,
+        payload: UpdateExpensePayload
+    ) => Promise<Expense | null>;
+    removeExpenseFromGroup: (
+        groupId: string | number,
+        expenseId: string | number
+    ) => Promise<boolean>;
 }
 
-export const useGroupStore = create<GroupState>()((set, _get) => ({
+export const useGroupStore = create<GroupState>()((set, get) => ({
     groups: [],
     isLoading: false,
     error: null,
@@ -60,6 +75,11 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
     settlementPlan: [],
     isLoadingSettlement: false,
     settlementError: null,
+
+    isUpdatingExpense: false,
+    updateExpenseError: null,
+    isDeletingExpense: false,
+    deleteExpenseError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -209,5 +229,55 @@ export const useGroupStore = create<GroupState>()((set, _get) => ({
 
     clearSettlementPlan: () => {
         set({ settlementPlan: [], isLoadingSettlement: false, settlementError: null });
+    },
+
+    editExpenseInGroup: async (groupId, expenseId, payload) => {
+        set({ isUpdatingExpense: true, updateExpenseError: null });
+        try {
+            const updatedExpense = await updateExpense(groupId, expenseId, payload);
+            set((state) => ({
+                selectedGroupExpenses: state.selectedGroupExpenses.map((exp) =>
+                    exp.id === expenseId ? updatedExpense : exp
+                ),
+                isUpdatingExpense: false,
+            }));
+            get().clearSettlementPlan();
+            return updatedExpense;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to update expense';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ updateExpenseError: errorMessage, isUpdatingExpense: false });
+            return null;
+        }
+    },
+
+    removeExpenseFromGroup: async (groupId, expenseId) => {
+        set({ isDeletingExpense: true, deleteExpenseError: null });
+        try {
+            await deleteExpense(groupId, expenseId);
+            set((state) => ({
+                selectedGroupExpenses: state.selectedGroupExpenses.filter(
+                    (exp) => exp.id !== expenseId
+                ),
+                isDeletingExpense: false,
+            }));
+            get().clearSettlementPlan();
+            return true;
+        } catch (e: unknown) {
+            let errorMessage = "Failed to delete expense";
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ deleteExpenseError: errorMessage, isDeletingExpense: false });
+            return false;
+        }
     },
 }));
