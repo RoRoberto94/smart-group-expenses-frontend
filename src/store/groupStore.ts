@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
-import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, type CreateGroupPayload } from '../services/groupService';
+import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, updateGroupName, deleteGroup, type UpdateGroupNamePayload, type CreateGroupPayload } from '../services/groupService';
 import { createExpenseInGroup, updateExpense, deleteExpense } from '../services/expenseService';
 import type { CreateExpensePayload, UpdateExpensePayload } from '../services/expenseService';
 import { AxiosError } from 'axios';
@@ -55,6 +55,14 @@ interface GroupState {
         groupId: string | number,
         expenseId: string | number
     ) => Promise<boolean>;
+
+    isUpdatingGroup: boolean;
+    updateGroupError: string | null;
+    isDeletingGroup: boolean;
+    deleteGroupError: string | null;
+
+    editGroupDetails: (groupId: string | number, payload: UpdateGroupNamePayload) => Promise<Group | null>;
+    removeGroup: (groupId: string | number) => Promise<boolean>;
 }
 
 export const useGroupStore = create<GroupState>()((set, get) => ({
@@ -80,6 +88,11 @@ export const useGroupStore = create<GroupState>()((set, get) => ({
     updateExpenseError: null,
     isDeletingExpense: false,
     deleteExpenseError: null,
+
+    isUpdatingGroup: false,
+    updateGroupError: null,
+    isDeletingGroup: false,
+    deleteGroupError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -277,6 +290,56 @@ export const useGroupStore = create<GroupState>()((set, get) => ({
                 else if (e.message) { errorMessage = e.message; }
             } else if (e instanceof Error) { errorMessage = e.message; }
             set({ deleteExpenseError: errorMessage, isDeletingExpense: false });
+            return false;
+        }
+    },
+
+    editGroupDetails: async (groupId, payload) => {
+        set({ isUpdatingGroup: true, updateGroupError: null });
+        try {
+            const updatedGroup = await updateGroupName(groupId, payload);
+            set((state) => ({
+                groups: state.groups.map((g) => (g.id === groupId ? updatedGroup : g)),
+                selectedGroup: state.selectedGroup?.id === groupId ? updatedGroup : state.selectedGroup,
+                isUpdatingGroup: false,
+            }));
+            return updatedGroup;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to update group';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ updateGroupError: errorMessage, isUpdatingGroup: false });
+            return null;
+        }
+    },
+
+    removeGroup: async (groupId) => {
+        set({ isDeletingGroup: true, deleteGroupError: null });
+        try {
+            await deleteGroup(groupId);
+            set((state) => ({
+                groups: state.groups.filter((g) => g.id !== groupId),
+                selectedGroup: state.selectedGroup?.id === groupId ? null : state.selectedGroup,
+                selectedGroupExpenses: state.selectedGroup?.id === groupId ? [] : state.selectedGroupExpenses,
+                settlementPlan: state.selectedGroup?.id === groupId ? [] : state.settlementPlan,
+                isLoadingSelectedGroup: state.selectedGroup?.id === groupId ? false : state.isLoadingSelectedGroup,
+                selectedGroupError: state.selectedGroup?.id === groupId ? null : state.selectedGroupError,
+                isDeletingGroup: false,
+            }));
+            return true;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to delete group';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ deleteGroupError: errorMessage, isDeletingGroup: false });
             return false;
         }
     },

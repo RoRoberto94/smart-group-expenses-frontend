@@ -33,4 +33,22 @@ export const fetchSettlementPlan = async (groupId: string | number): Promise<Set
     return data;
 };
 
+export interface UpdateGroupNamePayload {
+    name: string;
+}
+
+export const updateGroupName= async (
+    groupId: string | number,
+    payload: UpdateGroupNamePayload
+): Promise<Group> => {
+    const { data } = await apiClient.patch<Group>
+    (`/groups/${groupId}/`, payload);
+    return data;
+};
+
+export const deleteGroup = async (groupId: string | number): Promise<void> => {
+    await apiClient.delete(`/groups/${groupId}/`);
+};
+
+
 
