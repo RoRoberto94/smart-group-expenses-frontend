@@ -8,10 +8,14 @@ import AddExpenseForm from '../components/AddExpenseForm/AddExpenseForm';
 import SettlementTransactionItem from '../components/SettlementTransactionItem/SettlementTransactionItem';
 import EditExpenseForm from '../components/EditExpenseForm/EditExpenseForm';
 import type { Expense } from '../types/Expense';
+import { useAuthStore } from '../store/authStore';
+import ManageMembers from '../components/ManageMembers/ManageMembers';
 
 
 const GroupDetailPage: React.FC = () => {
     const { groupId } = useParams<{ groupId: string }>();
+
+    const currentUser = useAuthStore((state) => state.user);
 
     const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
     const [showSettlement, setShowSettlement] = useState(false);
@@ -116,6 +120,8 @@ const GroupDetailPage: React.FC = () => {
         return <div className={styles.notFoundMessage}>Group data is missing or an unknown error occurred.</div>;
     }
 
+    const isOwner = currentUser?.id === selectedGroup.owner.id;
+
     return (
         <div className={styles.pageContainer}>
             <Link to="/dashboard" className={styles.backLink}>
@@ -185,6 +191,12 @@ const GroupDetailPage: React.FC = () => {
                             ))}
                         </ul>
                     )}
+                </section>
+            )}
+
+            {isOwner && groupId && (
+                <section className={styles.manageMembersSection}>
+                    <ManageMembers groupId={groupId} />
                 </section>
             )}
 

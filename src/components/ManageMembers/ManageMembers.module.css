@@ -1,0 +1,78 @@
+.manageMembersContainer {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #383838;
+    border-radius: 8px;
+    border: 1px solid #4c4c4c;
+}
+
+.sectionTitle {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: #d0d0d0;
+    font-size: 1.3rem;
+    border-bottom: 1px solid #555;
+    padding-bottom: 0.75rem;
+}
+
+.addForm {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.addForm>div {
+    flex-grow: 1;
+    margin-bottom: 0 !important;
+}
+
+.addForm>button {
+    flex-shrink: 0;
+    width: auto !important;
+    padding: 0.6rem 1.2rem !important;
+    min-width: 130px;
+    text-align: center;
+}
+
+.listTitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #c0c0c0;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.membersList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.memberItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #4a4a4a;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.removeButton {
+    padding: 0.3rem 0.7rem !important;
+    font-size: 0.8rem !important;
+    background-color: #753636 !important;
+    border-color: #8f4c4c !important;
+}
+
+.removeButton:hover:not(:disabled) {
+    background-color: #8f4040 !important;
+}
+
+.errorMessage {
+    color: #ff9c99;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}

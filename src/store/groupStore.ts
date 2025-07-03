@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Group } from '../types/Group';
 import type { Expense } from '../types/Expense';
-import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, updateGroupName, deleteGroup, type UpdateGroupNamePayload, type CreateGroupPayload } from '../services/groupService';
+import { fetchUserGroups, createNewGroup, fetchGroupDetails, fetchGroupExpenses, fetchSettlementPlan, updateGroupName, deleteGroup, type UpdateGroupNamePayload, type CreateGroupPayload, addMemberToGroup, removeMemberFromGroup } from '../services/groupService';
 import { createExpenseInGroup, updateExpense, deleteExpense } from '../services/expenseService';
 import type { CreateExpensePayload, UpdateExpensePayload } from '../services/expenseService';
 import { AxiosError } from 'axios';
@@ -63,6 +63,12 @@ interface GroupState {
 
     editGroupDetails: (groupId: string | number, payload: UpdateGroupNamePayload) => Promise<Group | null>;
     removeGroup: (groupId: string | number) => Promise<boolean>;
+
+    isManagingMembers: boolean;
+    manageMembersError: string | null;
+
+    addMember: (groupId: string | number, username: string) => Promise<boolean>;
+    removeMember: (groupId: string | number, username: string) => Promise<boolean>;
 }
 
 export const useGroupStore = create<GroupState>()((set, get) => ({
@@ -93,6 +99,9 @@ export const useGroupStore = create<GroupState>()((set, get) => ({
     updateGroupError: null,
     isDeletingGroup: false,
     deleteGroupError: null,
+
+    isManagingMembers: false,
+    manageMembersError: null,
 
     fetchGroups: async () => {
         set({ isLoading: true, error: null });
@@ -340,6 +349,87 @@ export const useGroupStore = create<GroupState>()((set, get) => ({
                 else if (e.message) { errorMessage = e.message; }
             } else if (e instanceof Error) { errorMessage = e.message; }
             set({ deleteGroupError: errorMessage, isDeletingGroup: false });
+            return false;
+        }
+    },
+
+    addMember: async (groupId, username) => {
+        set({ isManagingMembers: true, manageMembersError: null });
+        try {
+            const response = await addMemberToGroup(groupId, username);
+            const newMember = response.member;
+
+            set((state) => {
+                if (!state.selectedGroup) {
+                    return {};
+                }
+                return {
+                    selectedGroup: {
+                        ...state.selectedGroup,
+                        members: [...state.selectedGroup.members, newMember],
+                    },
+                    isManagingMembers: false,
+                };
+            });
+            return true;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to add member';
+            if (e instanceof AxiosError && e.response?.data) {
+                const errorData = e.response.data as ApiErrorData | string;
+
+                if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else if (typeof errorData === 'object' && errorData !== null) {
+                    const firstErrorKey = Object.keys(errorData)[0];
+                    if (firstErrorKey) {
+                        const errorValue = errorData[firstErrorKey];
+                        if (Array.isArray(errorValue)) {
+                            errorMessage = errorValue[0];
+                        } else {
+                            errorMessage = String(errorValue);
+                        }
+                    } else {
+                        errorMessage = e.message;
+                    }
+                } else {
+                    errorMessage = e.message;
+                }
+            } else if (e instanceof Error) {
+                errorMessage = e.message;
+            }
+            set({ manageMembersError: errorMessage, isManagingMembers: false });
+            return false;
+        }
+    },
+
+    removeMember: async (groupId, username) => {
+        set({ isManagingMembers: true, manageMembersError: null });
+        try {
+            await removeMemberFromGroup(groupId, username);
+            set((state) => {
+                if (!state.selectedGroup) {
+                    return {};
+                }
+                return {
+                    selectedGroup: {
+                        ...state.selectedGroup,
+                        members: state.selectedGroup.members.filter(
+                            (member) => member.username !== username
+                        ),
+                    },
+                    isManagingMembers: false,
+                };
+            });
+            return true;
+        } catch (e: unknown) {
+            let errorMessage = 'Failed to remove member';
+            if (e instanceof AxiosError) {
+                const errorData = e.response?.data as ApiErrorData | string | undefined;
+                if (typeof errorData === 'string') { errorMessage = errorData; }
+                else if (errorData?.detail) { errorMessage = errorData.detail; }
+                else if (e.message) { errorMessage = e.message; }
+            } else if (e instanceof Error) { errorMessage = e.message; }
+            set({ manageMembersError: errorMessage, isManagingMembers: false });
             return false;
         }
     },
