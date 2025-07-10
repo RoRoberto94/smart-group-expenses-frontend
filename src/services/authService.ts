@@ -38,3 +38,13 @@ export const refreshToken = async (refreshTok: string):
     return data;
 };
 
+export interface UpdateProfilePayload {
+    first_name?: string;
+    last_name?: string;
+}
+
+export const updateUserProfile = async (payload: UpdateProfilePayload): Promise<User> => {
+    const { data } = await apiClient.patch<User>('/auth/user/', payload);
+    return data;
+}
+

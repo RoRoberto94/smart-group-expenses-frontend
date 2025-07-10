@@ -8,6 +8,7 @@ import GroupDetailPage from '../pages/GroupDetailPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import ProtectedRoute from './ProtectedRoute';
 import CreateGroupPage from '../pages/CreateGroupPage';
+import ProfilePage from '../pages/ProfilePage';
 
 
 export const router = createBrowserRouter([
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
                         path: 'groups/:groupId',
                         element: <GroupDetailPage />,
                     },
+                    {
+                        path: 'profile',
+                        element: <ProfilePage />
+                    }
                 ],
             },
         ],

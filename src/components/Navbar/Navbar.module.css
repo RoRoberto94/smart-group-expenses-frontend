@@ -74,6 +74,16 @@
     font-size: 0.9rem;
 }
 
+.userInfo a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.userInfo a:hover {
+    color: #e0e0e0;
+}
+
 .logoutButton {
     padding: 0.4rem 0.8rem !important;
     font-size: 0.9rem !important;

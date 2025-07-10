@@ -32,3 +32,34 @@
     text-align: center;
     font-size: 0.9rem;
 }
+
+.profileInfo {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #444;
+    color: #c0c0c0;
+    line-height: 1.6;
+}
+
+.profileInfo p {
+    margin: 0.5rem 0;
+}
+
+.formSubtitle {
+    font-size: 1.2rem;
+    color: #d0d0d0;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.successMessage {
+    color: #81c784;
+    background-color: rgba(129, 199, 132, 0.1);
+    border: 1px solid rgba(129, 199, 132, 0.3);
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+}

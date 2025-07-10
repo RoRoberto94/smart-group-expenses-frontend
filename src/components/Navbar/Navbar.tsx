@@ -37,7 +37,11 @@ const Navbar: React.FC = () => {
             <ul className={styles.navLinks}>
                 {isAuthenticated ? (
                     <>
-                        {user && <li className={styles.userInfo}>Hi, {user.username}!</li>}
+                        {user && (
+                            <li className={styles.userInfo}>
+                                <Link to="/profile">Hi, {user.username}!</Link>
+                            </li>
+                        )}
                         <li>
                             <Button onClick={handleLogout} variant="secondary" className={styles.logoutButton}>
                                 Logout
