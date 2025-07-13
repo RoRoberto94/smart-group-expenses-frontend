@@ -43,3 +43,9 @@
 .redirectLink a:hover {
   text-decoration: underline;
 }
+
+@media (max-width: 640px) {
+  .authContainer {
+    padding: 1.5rem 1rem;
+  }
+}
