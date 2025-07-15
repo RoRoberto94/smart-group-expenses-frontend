@@ -16,7 +16,7 @@ const Button: React.FC<ButtonProps> = ({
             disabled={disabled || isLoading}
             {...buttonProps}
         >
-            {isLoading ? <span className={styles.spinner}></span> : children}
+            {isLoading ? <span className={styles.spinner} role="status" aria-label="loading"></span> : children}
         </button>
     );
 };
