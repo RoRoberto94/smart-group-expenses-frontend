@@ -63,7 +63,7 @@ const LoginPage: React.FC = () => {
                     disabled={isLoading}
                     required
                 />
-                {error && <p className={styles.errorMessage}>{error}</p>}
+                {error && <p data-testid="login-error-message" className={styles.errorMessage}>{error}</p>}
                 <Button type="submit" isLoading={isLoading} disabled={isLoading}>
                     Login
                 </Button>
