@@ -1,6 +1,7 @@
-const { defineConfig, mergeConfig } = require('vite');
-const { defineConfig: defineTestConfig } = require('vitest/config');
-const react = require('@vitejs/plugin-react');
+import { defineConfig } from 'vite';
+import { defineConfig as defineTestConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { mergeConfig } from 'vite';
 
 const viteConfig = defineConfig({
   plugins: [react()],
@@ -14,4 +15,4 @@ const vitestConfig = defineTestConfig({
   },
 });
 
-module.exports = mergeConfig(viteConfig, vitestConfig);
+export default mergeConfig(viteConfig, vitestConfig);
